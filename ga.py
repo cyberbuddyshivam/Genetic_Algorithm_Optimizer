@@ -49,7 +49,7 @@ class GeneticAlgorithm:
     def mutate(self, x):
         if random.random() < self.mutation_rate:
             x += random.uniform(-1, 1)
-        # Clip x to stay within bounds (replaces np.clip)
+        # Clip x to stay within bounds
         if x < self.lower_bound:
             x = self.lower_bound
         elif x > self.upper_bound:
