@@ -1,5 +1,4 @@
 import random
-import numpy as np
 
 class GeneticAlgorithm:
     def __init__(
@@ -50,7 +49,12 @@ class GeneticAlgorithm:
     def mutate(self, x):
         if random.random() < self.mutation_rate:
             x += random.uniform(-1, 1)
-        return np.clip(x, self.lower_bound, self.upper_bound)
+        # Clip x to stay within bounds (replaces np.clip)
+        if x < self.lower_bound:
+            x = self.lower_bound
+        elif x > self.upper_bound:
+            x = self.upper_bound
+        return x
 
     # Step 6: Run Genetic Algorithm
     def run(self):
