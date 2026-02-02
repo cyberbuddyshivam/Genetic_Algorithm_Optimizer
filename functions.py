@@ -1,23 +1,4 @@
-# Helper function: Calculate sine using Taylor series (no math library)
-def sin(x):
-    """
-    Calculate sin(x) using Taylor series expansion
-    sin(x) = x - x^3/3! + x^5/5! - x^7/7! + ...
-    """
-    # Normalize x to [-π, π] range
-    pi = 3.14159265358979323846
-    x = x % (2 * pi)
-    if x > pi:
-        x -= 2 * pi
-    
-    # Taylor series calculation
-    result = 0
-    term = x
-    for n in range(15):  # 15 terms for good accuracy
-        result += term
-        term *= -x * x / ((2 * n + 2) * (2 * n + 3))
-    return result
-
+import math
 
 # 1. Simple Quadratic Function
 def quadratic(x):
@@ -43,7 +24,7 @@ def trigonometric(x):
     f(x) = sin(x) + x^2
     Non-linear, multi-modal
     """
-    return sin(x) + x**2
+    return math.sin(x) + x**2
 
 
 # Dictionary to access functions easily from GUI

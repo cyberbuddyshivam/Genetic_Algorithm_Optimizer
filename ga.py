@@ -49,7 +49,7 @@ class GeneticAlgorithm:
     def mutate(self, x):
         if random.random() < self.mutation_rate:
             x += random.uniform(-1, 1)
-        # Clip x to stay within bounds (replaces np.clip)
+        # Clip x to stay within bounds
         if x < self.lower_bound:
             x = self.lower_bound
         elif x > self.upper_bound:
@@ -61,19 +61,6 @@ class GeneticAlgorithm:
         self.initialize_population()
 
         for generation in range(self.generations):
-            new_population = []
-
-            for _ in range(self.population_size):
-                parent1 = self.selection()
-                parent2 = self.selection()
-
-                child = self.crossover(parent1, parent2)
-                child = self.mutate(child)
-
-                new_population.append(child)
-
-            self.population = new_population
-
             # Track best solution
             best_in_generation = min(self.population, key=self.fitness)
             best_fitness = self.fitness(best_in_generation)
@@ -83,5 +70,19 @@ class GeneticAlgorithm:
                 self.best_solution = best_in_generation
 
             self.fitness_history.append(self.best_fitness)
+
+            # Elitism: preserve best individual from last generation
+            new_population = [best_in_generation]
+            
+            for _ in range(self.population_size - 1):
+                parent1 = self.selection()
+                parent2 = self.selection()
+
+                child = self.crossover(parent1, parent2)
+                child = self.mutate(child)
+
+                new_population.append(child)
+
+            self.population = new_population
 
         return self.best_solution, self.best_fitness, self.fitness_history
