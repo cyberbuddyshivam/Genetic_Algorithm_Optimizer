@@ -22,29 +22,24 @@ class GeneticAlgorithm:
         self.best_fitness = float("inf")
         self.fitness_history = []
 
-    # Step 1: Initialize population
     def initialize_population(self):
         self.population = [
             random.uniform(self.lower_bound, self.upper_bound)
             for _ in range(self.population_size)
         ]
 
-    # Step 2: Fitness evaluation
     def fitness(self, x):
         return self.function(x)
 
-    # Step 3: Selection (Tournament Selection)
     def selection(self):
         tournament = random.sample(self.population, 3)
         return min(tournament, key=self.fitness)
 
-    # Step 4: Crossover
     def crossover(self, parent1, parent2):
         alpha = random.random()
         child = alpha * parent1 + (1 - alpha) * parent2
         return child
 
-    # Step 5: Mutation
     def mutate(self, x):
         if random.random() < self.mutation_rate:
             x += random.uniform(-1, 1)
@@ -55,7 +50,6 @@ class GeneticAlgorithm:
             x = self.upper_bound
         return x
 
-    # Step 6: Run Genetic Algorithm
     def run(self):
         random.seed(15)
         self.initialize_population()
