@@ -39,7 +39,7 @@ class GAApp:
         tk.Label(self.root, text="Population Size:").pack()
         self.population_entry = tk.Entry(self.root)
         self.population_entry.pack()
-        self.population_entry.insert(0, "30")
+        self.population_entry.insert(0, "7")
 
         # Generations
         tk.Label(self.root, text="Number of Generations:").pack()
