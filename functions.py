@@ -1,4 +1,4 @@
-# Helper function: Calculate sine using Taylor series (no math library)
+# Helper function: Calculate sine using Taylor series
 def sin(x):
     """
     Calculate sin(x) using Taylor series expansion
