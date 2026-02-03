@@ -58,6 +58,7 @@ class GeneticAlgorithm:
 
     # Step 6: Run Genetic Algorithm
     def run(self):
+        random.seed(15)
         self.initialize_population()
 
         for generation in range(self.generations):
