@@ -1,54 +1,88 @@
-# Helper function: Calculate sine using Taylor series
+from math import cos, pi
+
+
 def sin(x):
-    """
-    Calculate sin(x) using Taylor series expansion
-    sin(x) = x - x^3/3! + x^5/5! - x^7/7! + ...
-    """
-    # Normalize x to [-π, π] range
-    pi = 3.14159265358979323846
-    x = x % (2 * pi)
-    if x > pi:
-        x -= 2 * pi
-    
-    # Taylor series calculation
     result = 0
     term = x
-    for n in range(15):  # 15 terms for good accuracy
+    for n in range(15):
         result += term
         term *= -x * x / ((2 * n + 2) * (2 * n + 3))
     return result
 
 
-# 1. Simple Quadratic Function
 def quadratic(x):
-    """
-    f(x) = x^2
-    Global minimum at x = 0
-    """
-    return x ** 2
+    return x[0] ** 2
 
 
-# 2. Cubic Polynomial Function
 def cubic(x):
-    """
-    f(x) = x^3 - 6x^2 + 4x + 12
-    Has multiple local minima
-    """
-    return x**3 - 6*x**2 + 4*x + 12
+    return x[0] ** 3 - 6 * x[0] ** 2 + 4 * x[0] + 12
 
 
-# 3. Trigonometric Function
 def trigonometric(x):
-    """
-    f(x) = sin(x) + x^2
-    Non-linear, multi-modal
-    """
-    return sin(x) + x**2
+    return sin(x[0]) + x[0] ** 2
 
 
-# Dictionary to access functions easily from GUI
-FUNCTIONS = {
-    "Quadratic: x²": quadratic,
-    "Cubic Polynomial": cubic,
-    "Trigonometric: sin(x) + x²": trigonometric
+def sphere(x):
+    return sum(xi**2 for xi in x)
+
+
+def rastrigin(x):
+    return 10 * len(x) + sum(xi**2 - 10 * cos(2 * pi * xi) for xi in x)
+
+
+def rosenbrock(x):
+    return sum(
+        100 * (x[i + 1] - x[i] ** 2) ** 2 + (x[i] - 1) ** 2 for i in range(len(x) - 1)
+    )
+
+
+FUNCTION_INFO = {
+    "Quadratic: x²": {
+        "function": quadratic,
+        "min_dimensions": 1,
+        "max_dimensions": 1,
+        "bounds": (-10, 10),
+        "optimum_value": 0,
+        "optimum_desc": "x = 0",
+    },
+    "Cubic Polynomial": {
+        "function": cubic,
+        "min_dimensions": 1,
+        "max_dimensions": 1,
+        "bounds": (-10, 10),
+        "optimum_value": None,
+        "optimum_desc": None,
+    },
+    "Trigonometric: sin(x) + x²": {
+        "function": trigonometric,
+        "min_dimensions": 1,
+        "max_dimensions": 1,
+        "bounds": (-10, 10),
+        "optimum_value": None,
+        "optimum_desc": None,
+    },
+    "Sphere": {
+        "function": sphere,
+        "min_dimensions": 2,
+        "max_dimensions": 20,
+        "bounds": (-5.12, 5.12),
+        "optimum_value": 0,
+        "optimum_desc": "origin (all zeros)",
+    },
+    "Rastrigin": {
+        "function": rastrigin,
+        "min_dimensions": 2,
+        "max_dimensions": 20,
+        "bounds": (-5.12, 5.12),
+        "optimum_value": 0,
+        "optimum_desc": "origin (all zeros)",
+    },
+    "Rosenbrock": {
+        "function": rosenbrock,
+        "min_dimensions": 2,
+        "max_dimensions": 20,
+        "bounds": (-2.048, 2.048),
+        "optimum_value": 0,
+        "optimum_desc": "all ones",
+    },
 }
