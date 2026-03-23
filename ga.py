@@ -4,7 +4,7 @@ class GeneticAlgorithm:
     def __init__(
         self,
         function,
-        population_size=20,
+        population_size=7,
         generations=50,
         mutation_rate=0.1,
         lower_bound=-10,
@@ -36,8 +36,7 @@ class GeneticAlgorithm:
     # Step 3: Selection (Tournament Selection)
     def selection(self):
         tournament = random.sample(self.population, 3)
-        tournament.sort(key=self.fitness)
-        return tournament[0]
+        return min(tournament, key=self.fitness)
 
     # Step 4: Crossover
     def crossover(self, parent1, parent2):
