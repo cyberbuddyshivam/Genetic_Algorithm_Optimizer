@@ -1,9 +1,10 @@
+import random
 import tkinter as tk
 from tkinter import ttk, messagebox
 
 from ga import GeneticAlgorithm
-from functions import FUNCTION_INFO
-from plot import plot_fitness
+from functions import FUNCTION_INFO, gradient_descent
+from plot import plot_fitness, plot_comparison
 
 
 def is_1d_function(info):
@@ -79,6 +80,16 @@ class GAApp:
             width=20,
         ).pack(pady=15)
 
+        self.compare_button = tk.Button(
+            self.root,
+            text="Compare with Gradient Descent",
+            command=self.compare_gd,
+            bg="#2196F3",
+            fg="white",
+            width=20,
+        )
+        self.compare_button.pack(pady=5)
+
         self.result_label = tk.Label(
             self.root, text="Result will appear here", font=("Arial", 11), fg="blue"
         )
@@ -113,6 +124,11 @@ class GAApp:
             self.dimensions_spinbox.config(from_=info["min_dimensions"])
             self.dimensions_spinbox.config(to=info["max_dimensions"])
             self.dimensions_label.config(text="Dimensions:")
+
+        if info.get("has_gradient"):
+            self.compare_button.pack(pady=5)
+        else:
+            self.compare_button.pack_forget()
 
     def run_ga(self):
         try:
@@ -162,6 +178,76 @@ class GAApp:
             self.result_label.config(text=result_text)
 
             plot_fitness(history, optimum=info.get("optimum_value"))
+
+        except Exception as e:
+            messagebox.showerror("Error", str(e))
+
+    def compare_gd(self):
+        try:
+            function_name = self.function_var.get()
+            info = FUNCTION_INFO[function_name]
+
+            dims = int(self.dimensions_var.get())
+            population = int(self.population_entry.get())
+            generations = int(self.generations_entry.get())
+            mutation_rate = float(self.mutation_entry.get())
+            seed_str = self.seed_entry.get().strip()
+            seed = int(seed_str) if seed_str else None
+
+            if not (0 <= mutation_rate <= 1):
+                raise ValueError("Mutation rate must be between 0 and 1")
+
+            if not (info["min_dimensions"] <= dims <= info["max_dimensions"]):
+                raise ValueError(
+                    f"Function requires {info['min_dimensions']}-{info['max_dimensions']} dimensions"
+                )
+
+            ga = GeneticAlgorithm(
+                function=info["function"],
+                dimensions=dims,
+                population_size=population,
+                generations=generations,
+                mutation_rate=mutation_rate,
+                bounds=info["bounds"],
+                seed=seed,
+            )
+
+            ga_best_x, ga_best_fx, ga_history = ga.run()
+
+            if seed is not None:
+                random.seed(seed)
+
+            lower, upper = info["bounds"]
+            initial_point = [random.uniform(lower, upper) for _ in range(dims)]
+
+            gd_best_fx, gd_best_x, gd_history = gradient_descent(
+                initial_point, iterations=generations, bounds=info["bounds"]
+            )
+
+            ga_x_str = ", ".join(f"{xi:.4f}" for xi in ga_best_x)
+            gd_x_str = ", ".join(f"{xi:.4f}" for xi in gd_best_x)
+
+            result_text = (
+                f"=== Genetic Algorithm ===\n"
+                f"Solution: [{ga_x_str}]\n"
+                f"Fitness: {ga_best_fx:.6f}\n\n"
+                f"=== Gradient Descent ===\n"
+                f"Solution: [{gd_x_str}]\n"
+                f"Fitness: {gd_best_fx:.6f}\n\n"
+            )
+
+            if info["optimum_value"] is not None:
+                ga_error = abs(ga_best_fx - info["optimum_value"])
+                gd_error = abs(gd_best_fx - info["optimum_value"])
+                result_text += (
+                    f"Optimum: {info['optimum_value']} at {info['optimum_desc']}\n"
+                    f"GA Error: {ga_error:.6f}\n"
+                    f"GD Error: {gd_error:.6f}"
+                )
+
+            self.result_label.config(text=result_text)
+
+            plot_comparison(ga_history, gd_history, optimum=info.get("optimum_value"))
 
         except Exception as e:
             messagebox.showerror("Error", str(e))

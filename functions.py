@@ -1,13 +1,24 @@
-from math import cos, pi
+pi = 3.14159265358979323846
 
 
 def sin(x):
+    two_pi = 2 * pi
+    x = x % two_pi
+    if x > pi:
+        x -= two_pi
+    elif x < -pi:
+        x += two_pi
+
     result = 0
     term = x
     for n in range(15):
         result += term
         term *= -x * x / ((2 * n + 2) * (2 * n + 3))
     return result
+
+
+def cos(x):
+    return sin(x + pi / 2)
 
 
 def quadratic(x):
@@ -34,6 +45,23 @@ def rosenbrock(x):
     return sum(
         100 * (x[i + 1] - x[i] ** 2) ** 2 + (x[i] - 1) ** 2 for i in range(len(x) - 1)
     )
+
+
+def gradient_rastrigin(x):
+    return [2 * xi + 20 * pi * sin(2 * pi * xi) for xi in x]
+
+
+def gradient_descent(x0, iterations=10000, learning_rate=0.001, bounds=(-5.12, 5.12)):
+    x = list(x0)
+    lower, upper = bounds
+    history = []
+
+    for _ in range(iterations):
+        grad = gradient_rastrigin(x)
+        x = [max(lower, min(upper, xi - learning_rate * gi)) for xi, gi in zip(x, grad)]
+        history.append(rastrigin(x))
+
+    return history[-1], x, history
 
 
 FUNCTION_INFO = {
@@ -76,6 +104,7 @@ FUNCTION_INFO = {
         "bounds": (-5.12, 5.12),
         "optimum_value": 0,
         "optimum_desc": "origin (all zeros)",
+        "has_gradient": True,
     },
     "Rosenbrock": {
         "function": rosenbrock,
