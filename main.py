@@ -1,6 +1,5 @@
-import random
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import ttk, messagebox, scrolledtext
 
 from ga import GeneticAlgorithm
 from functions import FUNCTION_INFO, gradient_descent
@@ -54,19 +53,19 @@ class GAApp:
         tk.Label(self.root, text="Population Size:").pack()
         self.population_entry = tk.Entry(self.root)
         self.population_entry.pack()
-        self.population_entry.insert(0, "100")
+        self.population_entry.insert(0, "50")
 
         tk.Label(self.root, text="Number of Generations:").pack()
         self.generations_entry = tk.Entry(self.root)
         self.generations_entry.pack()
-        self.generations_entry.insert(0, "500")
+        self.generations_entry.insert(0, "100")
 
         tk.Label(self.root, text="Mutation Rate (0–1):").pack()
         self.mutation_entry = tk.Entry(self.root)
         self.mutation_entry.pack()
         self.mutation_entry.insert(0, "0.1")
 
-        tk.Label(self.root, text="Seed (for reproducibility):").pack()
+        tk.Label(self.root, text="Seed").pack()
         self.seed_entry = tk.Entry(self.root)
         self.seed_entry.pack()
         self.seed_entry.insert(0, "15")
@@ -86,14 +85,14 @@ class GAApp:
             command=self.compare_gd,
             bg="#2196F3",
             fg="white",
-            width=20,
         )
         self.compare_button.pack(pady=5)
 
-        self.result_label = tk.Label(
-            self.root, text="Result will appear here", font=("Arial", 11), fg="blue"
+        tk.Label(self.root, text="Results:").pack(anchor="w", padx=10, pady=(10, 0))
+        self.result_text = scrolledtext.ScrolledText(
+            self.root, width=60, height=8, font=("Arial", 10), state="disabled"
         )
-        self.result_label.pack(pady=10)
+        self.result_text.pack(padx=10, pady=5, fill="both", expand=True)
 
     def init_function_dropdown(self):
         all_functions = list(FUNCTION_INFO.keys())
@@ -126,9 +125,17 @@ class GAApp:
             self.dimensions_label.config(text="Dimensions:")
 
         if info.get("has_gradient"):
-            self.compare_button.pack(pady=5)
+            if hasattr(self, "compare_button"):
+                self.compare_button.pack(pady=5)
         else:
-            self.compare_button.pack_forget()
+            if hasattr(self, "compare_button"):
+                self.compare_button.pack_forget()
+
+    def set_result(self, text):
+        self.result_text.config(state="normal")
+        self.result_text.delete(1.0, tk.END)
+        self.result_text.insert(tk.END, text)
+        self.result_text.config(state="disabled")
 
     def run_ga(self):
         try:
@@ -175,7 +182,7 @@ class GAApp:
             else:
                 result_text = f"Best Solution: [{x_str}]\nBest Fitness: {best_fx:.6f}"
 
-            self.result_label.config(text=result_text)
+            self.set_result(result_text)
 
             plot_fitness(history, optimum=info.get("optimum_value"))
 
@@ -214,6 +221,8 @@ class GAApp:
 
             ga_best_x, ga_best_fx, ga_history = ga.run()
 
+            import random
+
             if seed is not None:
                 random.seed(seed)
 
@@ -224,14 +233,15 @@ class GAApp:
                 initial_point, iterations=generations, bounds=info["bounds"]
             )
 
+            # Format results
             ga_x_str = ", ".join(f"{xi:.4f}" for xi in ga_best_x)
             gd_x_str = ", ".join(f"{xi:.4f}" for xi in gd_best_x)
 
             result_text = (
-                f"=== Genetic Algorithm ===\n"
+                f"Genetic Algorithm\n"
                 f"Solution: [{ga_x_str}]\n"
                 f"Fitness: {ga_best_fx:.6f}\n\n"
-                f"=== Gradient Descent ===\n"
+                f"Gradient Descent\n"
                 f"Solution: [{gd_x_str}]\n"
                 f"Fitness: {gd_best_fx:.6f}\n\n"
             )
@@ -245,7 +255,7 @@ class GAApp:
                     f"GD Error: {gd_error:.6f}"
                 )
 
-            self.result_label.config(text=result_text)
+            self.set_result(result_text)
 
             plot_comparison(ga_history, gd_history, optimum=info.get("optimum_value"))
 
